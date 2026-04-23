@@ -1,0 +1,44 @@
+services:
+
+  registro:
+    build:
+      context: ./registro
+      dockerfile: Dockerfile
+    container_name: registro
+    restart: unless-stopped
+    expose:
+      - "3001"
+    volumes:
+      - registro_db:/app/data
+      - registro_uploads:/app/uploads
+      - registro_auth:/app/auth_4
+      - registro_auth5:/app/auth_5
+    environment:
+      - DATABASE_URL=file:/app/data/dev.db
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - internal
+
+  velt:
+    build:
+      context: ./velt
+      dockerfile: Dockerfile
+    container_name: velt
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - registro
+    networks:
+      - internal
+
+volumes:
+  registro_db:
+  registro_uploads:
+  registro_auth:
+  registro_auth5:
+
+networks:
+  internal:
+    driver: bridge
